@@ -74,7 +74,8 @@ class NumbersScene extends Phaser.Scene {
       {
         progressKey: this.progressKey,
         getProgressId: (t) => t.label,
-        onProgressUpdate: () => this.progressUI.update()
+        onProgressUpdate: () => this.progressUI.update(),
+        sceneKey: 'NumbersScene'
       }
     );
 

@@ -46,6 +46,7 @@ class MathScene extends Phaser.Scene {
   }
 
   buildQuestion() {
+    var self = this;
     if (this.collider) this.collider.destroy();
     this.optionTargets.forEach(function (t) { if (t && t.destroy) t.destroy(); });
     this.optionTargets = [];
@@ -107,11 +108,13 @@ class MathScene extends Phaser.Scene {
       target.val = options[i];
       target.found = false;
 
-      target.setInteractive();
-      target.on('pointerdown', function () {
-        if (self.celebrationShown || target.found) return;
-        self.onOptionOverlap(target);
-      });
+      (function (t) {
+        t.setInteractive();
+        t.on('pointerdown', function () {
+          if (self.celebrationShown || t.found) return;
+          self.onOptionOverlap(t);
+        });
+      })(target);
 
       this.tweens.add({
         targets: target,
@@ -125,7 +128,6 @@ class MathScene extends Phaser.Scene {
       this.optionTargets.push(target);
     }
 
-    var self = this;
     this.collider = this.physics.add.overlap(this.bee, this.optionTargets, function (bee, opt) {
       if (self.celebrationShown || opt.found) return;
       self.onOptionOverlap(opt);
@@ -136,6 +138,7 @@ class MathScene extends Phaser.Scene {
     target.found = true;
 
     if (target.val === this.currentAnswer) {
+      GameStats.recordHit('MathScene');
       GameAudio.playPop();
       target.setStyle({ backgroundColor: '#66bb6a', color: '#1b5e20' });
       this.tweens.add({ targets: target, scale: 1.6, duration: 200, yoyo: true });
@@ -148,6 +151,7 @@ class MathScene extends Phaser.Scene {
         self.buildQuestion();
       }, 1000, this);
     } else {
+      GameStats.recordMistake('MathScene');
       GameAudio.playHit();
       target.setStyle({ backgroundColor: '#ef5350', color: '#ffffff' });
       var tx = target.x;

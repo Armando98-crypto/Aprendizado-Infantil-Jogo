@@ -103,6 +103,7 @@ class FrasesScene extends Phaser.Scene {
   onWordOverlap(target) {
     var expected = this.currentWords[this.wordIndex];
     if (target.word === expected) {
+      GameStats.recordHit('FrasesScene');
       target.found = true;
       this.foundWords.push(target.word);
       this.wordIndex++;
@@ -144,7 +145,7 @@ var PHRASES_DATA = {
     { words: ['A', 'bola', 'rola'], full: 'A bola rola', hint: '⚽' },
     { words: ['O', 'sapo', 'pula'], full: 'O sapo pula', hint: '🐸' },
     { words: ['A', 'vaca', 'dá', 'leite'], full: 'A vaca dá leite', hint: '🐮🥛' },
-    { words: ['O', 'pato', ' nada'], full: 'O pato nada', hint: '🦆🌊' },
+    { words: ['O', 'pato', 'nada'], full: 'O pato nada', hint: '🦆🌊' },
     { words: ['A', 'casa', 'é', 'grande'], full: 'A casa é grande', hint: '🏠' },
     { words: ['O', 'sol', 'brilha'], full: 'O sol brilha', hint: '☀️' },
     { words: ['A', 'lua', 'brilha', 'à', 'noite'], full: 'A lua brilha à noite', hint: '🌙' },

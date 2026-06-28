@@ -78,17 +78,19 @@ class MultiplyScene extends Phaser.Scene {
         backgroundColor: '#e65100', padding: { x: 18, y: 10 }
       }).setOrigin(0.5);
 
-      target.setInteractive();
-      target.on('pointerdown', function () {
-        if (self.celebrationShown || target.found) return;
-        self.onOptionOverlap(target);
-      });
-
       this.physics.add.existing(target);
       target.body.setCircle(22);
       target.body.setOffset(0, -2);
       target.val = options[i];
       target.found = false;
+
+      (function (t) {
+        t.setInteractive();
+        t.on('pointerdown', function () {
+          if (self.celebrationShown || t.found) return;
+          self.onOptionOverlap(t);
+        });
+      })(target);
 
       this.tweens.add({
         targets: target, y: oy + Phaser.Math.Between(-8, 8),
@@ -102,7 +104,6 @@ class MultiplyScene extends Phaser.Scene {
     var times = lang === 'pt-BR' || lang === 'pt-PT' ? 'vezes' : (lang === 'es' ? 'por' : 'times');
     Speech.speakSequence([Speech.numberToWords(q.a), times, Speech.numberToWords(q.b)]);
 
-    var self = this;
     this.collider = this.physics.add.overlap(this.bee, this.targets, function (bee, opt) {
       if (self.celebrationShown || opt.found) return;
       self.onOptionOverlap(opt);
@@ -112,6 +113,7 @@ class MultiplyScene extends Phaser.Scene {
   onOptionOverlap(target) {
     target.found = true;
     if (target.val === this.currentAnswer) {
+      GameStats.recordHit('MultiplyScene');
       GameAudio.playPop();
       target.setStyle({ backgroundColor: '#66bb6a', color: '#1b5e20' });
       this.tweens.add({ targets: target, scale: 1.6, duration: 200, yoyo: true });
@@ -119,6 +121,7 @@ class MultiplyScene extends Phaser.Scene {
       Speech.speak(Speech.numberToWords(this.currentAnswer));
       setTimeout(function (self) { self.questionIndex += 1; self.buildQuestion(); }, 1000, this);
     } else {
+      GameStats.recordMistake('MultiplyScene');
       GameAudio.playHit();
       target.setStyle({ backgroundColor: '#ef5350', color: '#ffffff' });
       this.tweens.add({ targets: target, x: target.x + 8, duration: 60, yoyo: true, repeat: 3 });

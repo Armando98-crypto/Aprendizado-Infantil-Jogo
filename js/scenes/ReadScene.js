@@ -28,8 +28,8 @@ class ReadScene extends Phaser.Scene {
     this.targets = [];
     this.collider = null;
 
-    SceneHelpers.createBackButton(this, function () { self.scene.start('MenuScene'); });
     var self = this;
+    SceneHelpers.createBackButton(this, function () { self.scene.start('MenuScene'); });
     this.buildQuestion();
   }
 
@@ -105,6 +105,7 @@ class ReadScene extends Phaser.Scene {
   onMissingOverlap(target) {
     var expected = this.missingWords[this.currentMissingIdx];
     if (target.word === expected) {
+      GameStats.recordHit('ReadScene');
       target.found = true;
       this.currentMissingIdx++;
 

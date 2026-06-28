@@ -29,8 +29,8 @@ class AnimalsScene extends Phaser.Scene {
     this.targets = [];
     this.collider = null;
 
-    SceneHelpers.createBackButton(this, function () { self.scene.start('MenuScene'); });
     var self = this;
+    SceneHelpers.createBackButton(this, function () { self.scene.start('MenuScene'); });
     this.buildAnimal();
   }
 
@@ -71,7 +71,8 @@ class AnimalsScene extends Phaser.Scene {
     var spacing = Math.min(70, (width - 60) / cols);
     var startX = cx - (spacing * (cols - 1)) / 2;
     var rowY = height - 100;
-    var hint = this.add.text(cx, 104, animal.hint || '', {
+    if (this.hintLabel) this.hintLabel.destroy();
+    this.hintLabel = this.add.text(cx, 104, animal.hint || '', {
       fontFamily: 'Fredoka, sans-serif', fontSize: '13px', color: '#78909c', fontStyle: 'italic'
     }).setOrigin(0.5);
 
@@ -114,6 +115,7 @@ class AnimalsScene extends Phaser.Scene {
   onLetterOverlap(target) {
     var expected = this.currentAnimal[this.letterIndex];
     if (target.letter === expected) {
+      GameStats.recordHit('AnimalsScene');
       target.found = true;
       this.foundLetters.push(target.letter);
       this.letterIndex++;

@@ -1,3 +1,8 @@
+/**
+ * MenuScene — mapa de jornada (Journey Map) com fases ligadas por trilho.
+ * Cada nó abre um nível; bloqueado/completo/desbloqueado visível de imediato.
+ */
+
 class MenuScene extends Phaser.Scene {
   constructor() { super({ key: 'MenuScene' }); }
 
@@ -5,175 +10,208 @@ class MenuScene extends Phaser.Scene {
     var self = this;
     SceneHelpers.createBackground(this);
 
-    var { width, height } = this.scale;
+    var width = this.scale.width;
+    var height = this.scale.height;
     var cx = width / 2;
 
-    var titleY = 14;
-    this.add.text(cx, titleY, '\uD83D\uDC1D', { fontSize: '26px' }).setOrigin(0.5);
-    this.add.text(cx, titleY + 22, 'Abelhinha Alfabeto', {
-      fontFamily: 'Fredoka, sans-serif', fontSize: '18px', color: '#2d5986', fontStyle: 'bold'
+    this.add.text(cx, 12, '\uD83D\uDC1D', { fontSize: '28px' }).setOrigin(0.5);
+    this.add.text(cx, 34, 'Mapa da Abelhinha', {
+      fontFamily: 'Fredoka, sans-serif', fontSize: '20px', color: '#2d5986', fontStyle: 'bold'
     }).setOrigin(0.5);
 
     var stats = Progression.getStats();
     var overall = GameStats.getOverall();
-
-    var statBg = this.add.graphics();
-    statBg.fillStyle(0xffffff, 0.6);
-    statBg.fillRoundedRect(cx - 130, titleY + 42, 260, 20, 10);
-
-    this.add.text(cx, titleY + 52, stats.completed + ' de ' + stats.total + ' fases  \u2022  ' + overall.accuracy + '% acertos', {
-      fontFamily: 'Fredoka, sans-serif', fontSize: '14px', color: '#5c6bc0', fontStyle: 'bold'
+    this.add.text(cx, 54, stats.completed + '/' + stats.total + ' fases  \u2022  ' + overall.accuracy + '% acertos', {
+      fontFamily: 'Fredoka, sans-serif', fontSize: '13px', color: '#5c6bc0', fontStyle: 'bold'
     }).setOrigin(0.5);
 
-    var modeY = titleY + 70;
     var isGuided = GameMode.isGuided();
     var modeLabel = isGuided ? '\uD83C\uDFAF Guiado' : '\uD83D\uDD13 Livre';
+    var modeColor = isGuided ? 0x66bb6a : 0x64b5f6;
 
-    var modeG = this.add.graphics();
-    modeG.fillStyle(isGuided ? 0x66bb6a : 0x64b5f6, 1);
-    modeG.fillRoundedRect(cx - 70, modeY - 12, 140, 24, 12);
-    modeG.lineStyle(2, 0xffffff, 0.8);
-    modeG.strokeRoundedRect(cx - 70, modeY - 12, 140, 24, 12);
-
-    var modeText = this.add.text(cx, modeY, modeLabel, {
-      fontFamily: 'Fredoka, sans-serif', fontSize: '13px', color: '#ffffff', fontStyle: 'bold'
-    }).setOrigin(0.5);
-
-    var modeHit = this.add.rectangle(cx, modeY, 140, 24, 0x000000, 0)
-      .setInteractive({ useHandCursor: true });
-    modeHit.on('pointerdown', function () {
+    var modeBtn = SceneHelpers.createButton(this, width - 72, 38, 118, 34, modeLabel, modeColor, function () {
       GameMode.toggle();
       self.scene.restart();
     });
 
-    var groups = Progression.GROUPS;
-    var cardY = modeY + 26;
-    var cardW = 250;
-    var cardH = 0;
-    var gapX = 16;
-    var gapY = 12;
+    this.drawJourneyMap();
 
-    function drawCategoryCard(scene, group, x, y, w) {
-      var cardG = scene.add.graphics();
-      cardG.fillStyle(0xffffff, 0.85);
-      cardG.fillRoundedRect(x - w / 2, y, w, 10, 14);
-
-      var title = scene.add.text(x, y + 14, group.name, {
-        fontFamily: 'Fredoka, sans-serif', fontSize: '13px', color: '#546e7a', fontStyle: 'bold'
-      }).setOrigin(0.5);
-
-      var cy = y + 34;
-      var cardContentH = 34;
-
-      group.levels.forEach(function (level) {
-        var unlocked = Progression.isUnlocked(level.id);
-        var completed = Progression.isCompleted(level.id);
-
-        var bgColor = unlocked ? (completed ? 0x81c784 : 0x42a5f5) : 0xbdbdbd;
-        var txtColor = unlocked ? '#ffffff' : '#9e9e9e';
-        var alpha = unlocked ? 1 : 0.4;
-
-        var itemG = scene.add.graphics();
-        itemG.fillStyle(bgColor, alpha);
-        itemG.fillRoundedRect(x - w / 2 + 10, cy, w - 20, 30, 8);
-        itemG.lineStyle(2, 0xffffff, unlocked ? 0.7 : 0.2);
-        itemG.strokeRoundedRect(x - w / 2 + 10, cy, w - 20, 30, 8);
-
-        var icon = completed ? '\u2713 ' : '';
-        icon += level.icon + ' ' + level.label;
-
-        var label = scene.add.text(x, cy + 15, icon, {
-          fontFamily: 'Fredoka, sans-serif', fontSize: '14px', color: txtColor, fontStyle: 'bold'
-        }).setOrigin(0.5);
-
-        if (unlocked) {
-          var hitArea = scene.add.rectangle(x, cy + 15, w - 20, 30, 0x000000, 0)
-            .setInteractive({ useHandCursor: true });
-          hitArea.on('pointerover', function () {
-            itemG.clear();
-            itemG.fillStyle(bgColor, 0.85);
-            itemG.fillRoundedRect(x - w / 2 + 10, cy, w - 20, 30, 8);
-            itemG.lineStyle(2, 0xffffff, 1);
-            itemG.strokeRoundedRect(x - w / 2 + 10, cy, w - 20, 30, 8);
-          });
-          hitArea.on('pointerout', function () {
-            itemG.clear();
-            itemG.fillStyle(bgColor, 1);
-            itemG.fillRoundedRect(x - w / 2 + 10, cy, w - 20, 30, 8);
-            itemG.lineStyle(2, 0xffffff, 0.7);
-            itemG.strokeRoundedRect(x - w / 2 + 10, cy, w - 20, 30, 8);
-          });
-          hitArea.on('pointerdown', function () {
-            if (GameAudio.getContext()) GameAudio.getContext().resume();
-            scene.scene.start(level.id);
-          });
-        }
-
-        cy += 36;
-        cardContentH += 36;
-      });
-
-      cardG.clear();
-      cardG.fillStyle(0xffffff, 0.85);
-      cardG.fillRoundedRect(x - w / 2, y, w, cardContentH + 10, 14);
-
-      cardG.lineStyle(2, 0xe0e0e0, 0.6);
-      cardG.strokeRoundedRect(x - w / 2, y, w, cardContentH + 10, 14);
-
-      var shadow = scene.add.graphics();
-      shadow.fillStyle(0x000000, 0.08);
-      shadow.fillRoundedRect(x - w / 2 + 2, y + 2, w, cardContentH + 10, 14);
-
-      return cardContentH + 10;
-    }
-
-    function layoutCards() {
-      var totalW = groups.length * cardW + (groups.length - 1) * gapX;
-      var startX = cx - totalW / 2 + cardW / 2;
-
-      groups.forEach(function (group, idx) {
-        var x = startX + idx * (cardW + gapX);
-        var h = drawCategoryCard(self, group, x, cardY, cardW);
-        cardH = Math.max(cardH, h);
-      });
-    }
-
-    layoutCards();
-
-    var bottomY = cardY + cardH + 14;
-    var btnAreaY = Math.min(bottomY, height - 44);
-
-    var achCount = Achievements.getUnlocked().length;
-    var achTotal = Achievements.getAll().length;
-    var achLabel = '\uD83C\uDFC6 ' + achCount + '/' + achTotal;
-
-    var achBtn = SceneHelpers.createButton(this, cx - 50 - 5, btnAreaY, 100, 36, achLabel, 0xffa726, function () {
+    SceneHelpers.createButton(this, 72, height - 32, 100, 34, '\uD83C\uDFC6 ' + Achievements.getUnlocked().length + '/' + Achievements.getAll().length, 0xffa726, function () {
       self.showAchievements();
     });
 
-    var helpBtn = SceneHelpers.createButton(this, cx + 50 + 5, btnAreaY, 100, 36, '? Ajuda', 0x9575cd, function () {
+    SceneHelpers.createButton(this, cx, height - 32, 100, 34, '? Ajuda', 0x9575cd, function () {
       HelpOverlay.show();
     });
 
-    var resetY = btnAreaY + 44;
-    if (resetY < height - 10) {
-      SceneHelpers.createButton(this, cx, resetY, 140, 32, '\u21BA Reiniciar', 0xef5350, function () {
-        Progression.resetAll();
-        GameStats.reset();
-        self.scene.restart();
+    SceneHelpers.createButton(this, width - 72, height - 32, 118, 34, '\u21BA Reiniciar', 0xef5350, function () {
+      Progression.resetAll();
+      GameStats.reset();
+      self.scene.restart();
+    });
+  }
+
+  drawJourneyMap() {
+    var self = this;
+    var width = this.scale.width;
+    var height = this.scale.height;
+
+    var GROUP_COLORS = {
+      Leitura: 0x42a5f5,
+      'Matemática': 0xff7043,
+      Escrita: 0xab47bc,
+      Extra: 0x66bb6a
+    };
+
+    var nodes = [];
+    Progression.GROUPS.forEach(function (group) {
+      group.levels.forEach(function (level) {
+        nodes.push({
+          id: level.id,
+          label: level.label,
+          icon: level.icon,
+          group: group.name,
+          color: GROUP_COLORS[group.name] || 0x90a4ae
+        });
       });
+    });
+
+    var cols = 4;
+    var startX = 110;
+    var endX = width - 110;
+    var stepX = (endX - startX) / (cols - 1);
+    var startY = 84;
+    var stepY = 80;
+
+    var positions = [];
+    for (var i = 0; i < nodes.length; i++) {
+      var row = Math.floor(i / cols);
+      var col = i % cols;
+      if (row % 2 === 1) col = cols - 1 - col;
+      positions.push({
+        x: startX + col * stepX,
+        y: startY + row * stepY
+      });
+    }
+
+    var pathG = this.add.graphics().setDepth(2);
+    pathG.lineStyle(6, 0xffffff, 0.55);
+    for (var p = 0; p < positions.length - 1; p++) {
+      pathG.beginPath();
+      pathG.moveTo(positions[p].x, positions[p].y);
+      pathG.lineTo(positions[p + 1].x, positions[p + 1].y);
+      pathG.strokePath();
+    }
+    pathG.lineStyle(3, 0xffd54f, 0.7);
+    for (var q = 0; q < positions.length - 1; q++) {
+      pathG.beginPath();
+      pathG.moveTo(positions[q].x, positions[q].y);
+      pathG.lineTo(positions[q + 1].x, positions[q + 1].y);
+      pathG.strokePath();
+    }
+
+    var nextIdx = -1;
+    for (var n = 0; n < nodes.length; n++) {
+      if (Progression.isUnlocked(nodes[n].id) && !Progression.isCompleted(nodes[n].id)) {
+        nextIdx = n;
+        break;
+      }
+    }
+
+    nodes.forEach(function (node, idx) {
+      var pos = positions[idx];
+      var unlocked = Progression.isUnlocked(node.id);
+      var completed = Progression.isCompleted(node.id);
+      var isNext = idx === nextIdx;
+
+      var radius = 34;
+      var nodeG = self.add.graphics().setDepth(5);
+      var fillColor = completed ? 0x81c784 : (unlocked ? node.color : 0xbdbdbd);
+      var alpha = unlocked ? 1 : 0.55;
+
+      nodeG.fillStyle(0x000000, 0.12);
+      nodeG.fillCircle(pos.x + 2, pos.y + 3, radius + 2);
+      nodeG.fillStyle(fillColor, alpha);
+      nodeG.fillCircle(pos.x, pos.y, radius);
+      nodeG.lineStyle(3, 0xffffff, unlocked ? 0.9 : 0.35);
+      nodeG.strokeCircle(pos.x, pos.y, radius);
+
+      if (completed) {
+        var star = self.add.text(pos.x + radius * 0.55, pos.y - radius * 0.55, '\u2B50', {
+          fontSize: '16px'
+        }).setOrigin(0.5).setDepth(8);
+      }
+
+      if (!unlocked) {
+        self.add.text(pos.x, pos.y, '\uD83D\uDD12', { fontSize: '22px' }).setOrigin(0.5).setDepth(7);
+      } else {
+        self.add.text(pos.x, pos.y - 2, node.icon, { fontSize: '26px' }).setOrigin(0.5).setDepth(7);
+      }
+
+      self.add.text(pos.x, pos.y + radius + 12, node.label, {
+        fontFamily: 'Fredoka, sans-serif',
+        fontSize: '11px',
+        color: unlocked ? '#37474f' : '#9e9e9e',
+        fontStyle: 'bold',
+        align: 'center',
+        wordWrap: { width: 80 }
+      }).setOrigin(0.5, 0).setDepth(6);
+
+      if (isNext && unlocked) {
+        var pulse = self.add.circle(pos.x, pos.y, radius + 8, node.color, 0.2).setDepth(4);
+        self.tweens.add({
+          targets: pulse,
+          scale: 1.25,
+          alpha: 0,
+          duration: 900,
+          yoyo: true,
+          repeat: -1,
+          ease: 'Sine.easeInOut'
+        });
+      }
+
+      if (unlocked) {
+        var hit = self.add.circle(pos.x, pos.y, radius + 12, 0x000000, 0)
+          .setInteractive({ useHandCursor: true }).setDepth(10);
+        hit.on('pointerdown', function () {
+          if (GameAudio.getContext()) GameAudio.getContext().resume();
+          BgmManager.resumeAfterInteraction();
+          self.scene.start(node.id);
+        });
+      }
+    });
+
+    if (nextIdx >= 0) {
+      var beePos = positions[nextIdx];
+      var mapBee = new Bee(this, beePos.x - 52, beePos.y - 8, false);
+      mapBee.setScale(0.55).setDepth(9);
+      this.tweens.add({
+        targets: mapBee,
+        y: beePos.y - 14,
+        duration: 1200,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut'
+      });
+    } else if (statsCompletedAll()) {
+      var lastPos = positions[positions.length - 1];
+      this.add.text(lastPos.x, lastPos.y - 58, '\uD83C\uDF89', { fontSize: '32px' }).setOrigin(0.5).setDepth(9);
+    }
+
+    function statsCompletedAll() {
+      return Progression.getStats().completed >= Progression.getStats().total;
     }
   }
 
   showAchievements() {
     var self = this;
-    var { width, height } = this.scale;
+    var width = this.scale.width;
+    var height = this.scale.height;
 
     var overlay = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.55)
       .setDepth(200).setInteractive();
 
     var panel = this.add.container(width / 2, height / 2).setDepth(201);
-
     var panelH = Math.min(440, height - 40);
 
     var bg = this.add.graphics();
@@ -181,12 +219,7 @@ class MenuScene extends Phaser.Scene {
     bg.fillRoundedRect(-175, -panelH / 2, 350, panelH, 24);
     bg.lineStyle(4, 0xffd54f, 1);
     bg.strokeRoundedRect(-175, -panelH / 2, 350, panelH, 24);
-
-    var shadow = this.add.graphics();
-    shadow.fillStyle(0x000000, 0.12);
-    shadow.fillRoundedRect(-173, -panelH / 2 + 2, 350, panelH, 24);
-
-    panel.add([shadow, bg]);
+    panel.add(bg);
 
     var title = this.add.text(0, -panelH / 2 + 28, '\uD83C\uDFC6 Conquistas', {
       fontFamily: 'Fredoka, sans-serif', fontSize: '22px', color: '#2d5986', fontStyle: 'bold'
@@ -207,15 +240,13 @@ class MenuScene extends Phaser.Scene {
       rowBg.fillRoundedRect(-150, yOff - 12, 300, 32, 8);
       panel.add(rowBg);
 
-      var txt = self.add.text(-130, yOff, icon + ' ' + ach.icon + ' ' + ach.label, {
+      panel.add(self.add.text(-130, yOff, icon + ' ' + ach.icon + ' ' + ach.label, {
         fontFamily: 'Fredoka, sans-serif', fontSize: '14px', color: achColor, fontStyle: 'bold'
-      }).setOrigin(0, 0.5);
-      panel.add(txt);
+      }).setOrigin(0, 0.5));
 
-      var desc = self.add.text(130, yOff, ach.desc, {
+      panel.add(self.add.text(130, yOff, ach.desc, {
         fontFamily: 'Fredoka, sans-serif', fontSize: '10px', color: isUnlocked ? '#388e3c' : '#e0e0e0'
-      }).setOrigin(1, 0.5);
-      panel.add(desc);
+      }).setOrigin(1, 0.5));
 
       yOff += 36;
     });

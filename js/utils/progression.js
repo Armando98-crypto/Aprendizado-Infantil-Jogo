@@ -51,11 +51,12 @@ const Progression = (function () {
   }
 
   function isUnlocked(id) {
+    if (typeof GameMode !== 'undefined' && GameMode.isFree()) return true;
+
     var data = load();
     if (data[id] && data[id].unlocked === true) return true;
     for (var g = 0; g < GROUPS.length; g++) {
-      if (GROUPS[g].unlockedByDefault && GROUPS[g].levels[0].id === id) return true;
-      if (GROUPS[g].levels[0].id === id) return true;
+      if (GROUPS[g].levels[0].id === id) return GROUPS[g].unlockedByDefault === true;
     }
     return false;
   }
@@ -91,6 +92,7 @@ const Progression = (function () {
     });
     localStorage.removeItem('game_stats');
     localStorage.removeItem('achievements');
+    localStorage.removeItem('total_play_count');
     localStorage.removeItem('game_mode');
     ['tutorial_alphabet_seen','tutorial_numbers_seen','tutorial_syllables_seen'].forEach(function (k) {
       localStorage.removeItem(k);

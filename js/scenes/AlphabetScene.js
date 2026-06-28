@@ -53,7 +53,8 @@ class AlphabetScene extends Phaser.Scene {
       {
         progressKey,
         getProgressId: (t) => t.label,
-        onProgressUpdate: () => this.progressUI.update()
+        onProgressUpdate: () => this.progressUI.update(),
+        sceneKey: 'AlphabetScene'
       }
     );
 

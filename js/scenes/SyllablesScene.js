@@ -170,9 +170,7 @@ class SyllablesScene extends Phaser.Scene {
         syllables: [
           { syl: 'ça', word: 'caça' },
           { syl: 'ço', word: 'moço' },
-          { syl: 'çu', word: 'açúcar' },
-          { syl: 'çã', word: 'maçã' },
-          { syl: 'ção', word: 'coração' }
+          { syl: 'çu', word: 'açúcar' }
         ]
       },
       {
@@ -214,6 +212,12 @@ class SyllablesScene extends Phaser.Scene {
 
     SceneHelpers.createBackground(this);
     SceneHelpers.createBackButton(this, () => this.scene.start('MenuScene'));
+
+    var langBtn = document.getElementById('lang-btn');
+    if (langBtn) langBtn.style.display = 'none';
+    this.events.on('shutdown', function () {
+      if (langBtn) langBtn.style.display = '';
+    });
 
     this.progressUI = SceneHelpers.createProgressIndicator(this, this.progressKey, this.totalSyllables);
 
@@ -283,7 +287,8 @@ class SyllablesScene extends Phaser.Scene {
       {
         progressKey: this.progressKey,
         getProgressId: (t) => this.getSyllableProgressId(t),
-        onProgressUpdate: () => this.progressUI.update()
+        onProgressUpdate: () => this.progressUI.update(),
+        sceneKey: 'SyllablesScene'
       }
     );
 

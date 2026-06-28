@@ -63,7 +63,8 @@ class WordsScene extends Phaser.Scene {
     this.wordText.setText('_ '.repeat(letters.length).trim());
     this.currentWord = wordData.word;
 
-    var hintText = this.add.text(cx, 68, wordData.hint || '', {
+    if (this.hintText) this.hintText.destroy();
+    this.hintText = this.add.text(cx, 68, wordData.hint || '', {
       fontFamily: 'Fredoka, sans-serif',
       fontSize: '13px',
       color: '#78909c',
@@ -126,6 +127,7 @@ class WordsScene extends Phaser.Scene {
   onLetterOverlap(target) {
     var expected = this.currentWord[this.letterIndex];
     if (target.letter === expected) {
+      GameStats.recordHit('WordsScene');
       target.found = true;
       this.foundLetters.push(target.letter);
       this.letterIndex++;

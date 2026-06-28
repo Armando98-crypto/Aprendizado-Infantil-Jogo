@@ -22,6 +22,9 @@ const VolumeControl = (function () {
       SoundSettings.toggle();
       updateIcon();
       if (GameAudio.getContext()) GameAudio.getContext().resume();
+      if (!SoundSettings.isMuted() && typeof BgmManager !== 'undefined') {
+        BgmManager.resumeAfterInteraction();
+      }
     });
 
     SoundSettings.onChange(updateIcon);

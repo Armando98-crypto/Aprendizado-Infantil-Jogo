@@ -128,6 +128,7 @@ class FormWordsScene extends Phaser.Scene {
   onSyllableOverlap(target) {
     var expected = this.currentSyllables[this.syllableIndex];
     if (target.syllable === expected) {
+      GameStats.recordHit('FormWordsScene');
       target.found = true;
       this.foundSyllables.push(target.syllable);
       this.syllableIndex++;

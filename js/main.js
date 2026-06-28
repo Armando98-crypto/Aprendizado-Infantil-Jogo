@@ -5,6 +5,18 @@
 const GAME_WIDTH = 900;
 const GAME_HEIGHT = 640;
 
+(function hookSceneBgm() {
+  var proto = Phaser.Scenes.SceneManager.prototype;
+  var originalStart = proto.start;
+  proto.start = function (key, data, data2) {
+    var result = originalStart.call(this, key, data, data2);
+    if (typeof BgmManager !== 'undefined') {
+      BgmManager.playForScene(key);
+    }
+    return result;
+  };
+})();
+
 const config = {
   type: Phaser.AUTO,
   width: GAME_WIDTH,
@@ -26,12 +38,18 @@ const config = {
 
 const game = new Phaser.Game(config);
 
+BgmManager.init();
 HelpOverlay.init();
 VolumeControl.init();
 LanguageSelector.init();
 
-document.addEventListener('pointerdown', () => {
+document.addEventListener('pointerdown', function () {
   if (GameAudio.getContext()) GameAudio.getContext().resume();
   Speech.loadVoices();
   Speech.prime();
+  BgmManager.resumeAfterInteraction();
 }, { once: true });
+
+game.events.once('ready', function () {
+  BgmManager.playForScene('MenuScene');
+});

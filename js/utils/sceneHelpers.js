@@ -301,7 +301,7 @@ const SceneHelpers = (function () {
   function setupBeeCollisions(scene, bee, targets, onHit, onAllComplete, options) {
     destroyColliders();
     if (options === undefined) options = {};
-    var { progressKey, getProgressId, onProgressUpdate } = options;
+    var { progressKey, getProgressId, onProgressUpdate, sceneKey } = options;
 
     targets.forEach(function (target) {
       var collider = scene.physics.add.overlap(bee, target.hitZone, function () {
@@ -311,6 +311,8 @@ const SceneHelpers = (function () {
             Progress.markCompleted(progressKey, getProgressId(target));
           }
           if (onProgressUpdate) onProgressUpdate();
+
+          if (sceneKey) GameStats.recordHit(sceneKey);
 
           playHitFeedback(scene, target);
           GameAudio.playSuccess();

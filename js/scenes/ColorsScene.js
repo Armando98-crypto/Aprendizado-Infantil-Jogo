@@ -84,17 +84,19 @@ class ColorsScene extends Phaser.Scene {
         backgroundColor: bgColor, padding: { x: 14, y: 10 }
       }).setOrigin(0.5);
 
-      target.setInteractive();
-      target.on('pointerdown', function () {
-        if (self.celebrationShown || target.found) return;
-        self.onColorOverlap(target);
-      });
-
       this.physics.add.existing(target);
       target.body.setCircle(24);
       target.body.setOffset(0, -4);
       target.val = options[i];
       target.found = false;
+
+      (function (t) {
+        t.setInteractive();
+        t.on('pointerdown', function () {
+          if (self.celebrationShown || t.found) return;
+          self.onColorOverlap(t);
+        });
+      })(target);
 
       this.tweens.add({
         targets: target, y: oy + Phaser.Math.Between(-8, 8),
@@ -113,6 +115,7 @@ class ColorsScene extends Phaser.Scene {
   onColorOverlap(target) {
     target.found = true;
     if (target.val === this.currentColorName) {
+      GameStats.recordHit('ColorsScene');
       GameAudio.playPop();
       target.setStyle({ backgroundColor: '#66bb6a', color: '#ffffff' });
       this.tweens.add({ targets: target, scale: 1.5, duration: 200, yoyo: true });
@@ -120,6 +123,7 @@ class ColorsScene extends Phaser.Scene {
       Speech.speak(this.currentColorName);
       setTimeout(function (self) { self.colorIndex += 1; self.buildColor(); }, 1000, this);
     } else {
+      GameStats.recordMistake('ColorsScene');
       GameAudio.playHit();
       target.setStyle({ backgroundColor: '#ef5350', color: '#ffffff' });
       this.tweens.add({ targets: target, x: target.x + 8, duration: 60, yoyo: true, repeat: 3 });

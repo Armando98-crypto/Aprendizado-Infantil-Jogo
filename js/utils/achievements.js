@@ -1,5 +1,6 @@
 const Achievements = (function () {
   var STORAGE_KEY = 'achievements';
+  var PLAY_COUNT_KEY = 'total_play_count';
 
   var ALL = [
     { id: 'first_steps', label: 'Primeiros Passos', icon: '👶', desc: 'Complete o Alfabeto' },
@@ -39,6 +40,7 @@ const Achievements = (function () {
   }
 
   function checkSceneComplete(sceneId) {
+    countPlay();
     var map = {
       'AlphabetScene': 'first_steps',
       'WordsScene': 'word_master',
@@ -67,6 +69,14 @@ const Achievements = (function () {
     return false;
   }
 
+  function countPlay() {
+    var count = parseInt(localStorage.getItem(PLAY_COUNT_KEY) || '0', 10);
+    count++;
+    localStorage.setItem(PLAY_COUNT_KEY, String(count));
+    if (count >= 20) unlock('persistent');
+    return count;
+  }
+
   function getUnlocked() {
     var list = load();
     return ALL.filter(function (a) { return list.indexOf(a.id) >= 0; });
@@ -79,5 +89,5 @@ const Achievements = (function () {
 
   function getAll() { return ALL; }
 
-  return { ALL: ALL, isUnlocked: isUnlocked, unlock: unlock, checkSceneComplete: checkSceneComplete, checkAllComplete: checkAllComplete, getUnlocked: getUnlocked, getLocked: getLocked, getAll: getAll };
+  return { ALL: ALL, isUnlocked: isUnlocked, unlock: unlock, checkSceneComplete: checkSceneComplete, checkAllComplete: checkAllComplete, getUnlocked: getUnlocked, getLocked: getLocked, getAll: getAll, countPlay: countPlay };
 })();
