@@ -20,8 +20,8 @@ class MultiplyScene extends Phaser.Scene {
     this.targets = [];
     this.collider = null;
 
-    SceneHelpers.createBackButton(this, function () { self.scene.start('MenuScene'); });
     var self = this;
+    SceneHelpers.createBackButton(this, function () { self.scene.start('MenuScene'); });
     this.buildQuestion();
   }
 
@@ -77,6 +77,12 @@ class MultiplyScene extends Phaser.Scene {
         fontFamily: 'Fredoka, sans-serif', fontSize: '32px', color: '#ffffff', fontStyle: 'bold',
         backgroundColor: '#e65100', padding: { x: 18, y: 10 }
       }).setOrigin(0.5);
+
+      target.setInteractive();
+      target.on('pointerdown', function () {
+        if (self.celebrationShown || target.found) return;
+        self.onOptionOverlap(target);
+      });
 
       this.physics.add.existing(target);
       target.body.setCircle(22);

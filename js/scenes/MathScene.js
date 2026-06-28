@@ -107,6 +107,12 @@ class MathScene extends Phaser.Scene {
       target.val = options[i];
       target.found = false;
 
+      target.setInteractive();
+      target.on('pointerdown', function () {
+        if (self.celebrationShown || target.found) return;
+        self.onOptionOverlap(target);
+      });
+
       this.tweens.add({
         targets: target,
         y: oy + Phaser.Math.Between(-10, 10),

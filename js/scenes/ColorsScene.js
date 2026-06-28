@@ -24,8 +24,8 @@ class ColorsScene extends Phaser.Scene {
     this.targets = [];
     this.collider = null;
 
-    SceneHelpers.createBackButton(this, function () { self.scene.start('MenuScene'); });
     var self = this;
+    SceneHelpers.createBackButton(this, function () { self.scene.start('MenuScene'); });
     this.buildColor();
   }
 
@@ -83,6 +83,12 @@ class ColorsScene extends Phaser.Scene {
         fontFamily: 'Fredoka, sans-serif', fontSize: '20px', color: '#ffffff', fontStyle: 'bold',
         backgroundColor: bgColor, padding: { x: 14, y: 10 }
       }).setOrigin(0.5);
+
+      target.setInteractive();
+      target.on('pointerdown', function () {
+        if (self.celebrationShown || target.found) return;
+        self.onColorOverlap(target);
+      });
 
       this.physics.add.existing(target);
       target.body.setCircle(24);
