@@ -1,72 +1,145 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Abelhinha Alfabeto</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-  <div id="game-wrapper">
-    <header class="game-header" aria-hidden="true">
-      <span class="header-bee" aria-hidden="true">ðŸ</span>
-      <h1>Abelhinha Alfabeto</h1>
-    </header>
-
-    <div id="game-area">
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <title>Abelhinha Alfabeto</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <div id="game-wrapper">
+
+    <header class="game-header" aria-hidden="true">
+
+      <span class="header-bee" aria-hidden="true">&#x1f41d;</span>
+
+      <h1>Abelhinha Alfabeto</h1>
+
+    </header>
+
+
+
+    <div id="game-area">
+
       <button id="lang-btn" class="lang-btn" type="button" aria-label="Idioma">&#x1f1e7;&#x1f1f7; PT-BR</button>
 
-      <button id="volume-btn" class="volume-btn" type="button" aria-label="Som">ðŸ”Š</button>
-      <main id="game-container" aria-label="Ãrea do jogo Abelhinha Alfabeto"></main>
-    </div>
-  </div>
-
-  <!-- Overlay "Como Jogar" -->
-  <div id="help-overlay" class="help-overlay hidden" aria-hidden="true">
-    <div class="overlay-backdrop"></div>
-    <div class="overlay-content" role="dialog" aria-labelledby="help-title">
-      <button id="help-close" class="overlay-close" type="button" aria-label="Fechar">âœ•</button>
-      <h2 id="help-title">Como Jogar</h2>
-      <div class="help-steps">
-        <div class="help-step">
-          <span class="help-icon" aria-hidden="true">ðŸ‘†</span>
-          <span class="help-text">Arrasta a abelhinha</span>
-        </div>
-        <div class="help-step">
-          <span class="help-icon" aria-hidden="true">âœ¨</span>
-          <span class="help-text">Toca nas letras</span>
-        </div>
-        <div class="help-step">
-          <span class="help-icon" aria-hidden="true">ðŸ”Š</span>
-          <span class="help-text">Escuta o som</span>
-        </div>
-      </div>
-      <button id="help-play" class="btn-grande help-play-btn" type="button">Jogar!</button>
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
-
-  <script src="js/utils/progress.js"></script>
-  <script src="js/utils/soundSettings.js"></script>
-  <script src="js/utils/speech.js"></script>
-  <script src="js/utils/audio.js"></script>
-  <script src="js/utils/helpOverlay.js"></script>
+      <button id="volume-btn" class="volume-btn" type="button" aria-label="Som">&#x1f50a;</button>
+
+      <main id="game-container" aria-label="Area do jogo Abelhinha Alfabeto"></main>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- Overlay "Como Jogar" -->
+
+  <div id="help-overlay" class="help-overlay hidden" aria-hidden="true">
+
+    <div class="overlay-backdrop"></div>
+
+    <div class="overlay-content" role="dialog" aria-labelledby="help-title">
+
+      <button id="help-close" class="overlay-close" type="button" aria-label="Fechar">&#x2715;</button>
+
+      <h2 id="help-title">Como Jogar</h2>
+
+      <div class="help-steps">
+
+        <div class="help-step">
+
+          <span class="help-icon" aria-hidden="true">&#x1f446;</span>
+
+          <span class="help-text">Arrasta a abelhinha</span>
+
+        </div>
+
+        <div class="help-step">
+
+          <span class="help-icon" aria-hidden="true">&#x2728;</span>
+
+          <span class="help-text">Toca nas letras</span>
+
+        </div>
+
+        <div class="help-step">
+
+          <span class="help-icon" aria-hidden="true">&#x1f50a;</span>
+
+          <span class="help-text">Escuta o som</span>
+
+        </div>
+
+      </div>
+
+      <button id="help-play" class="btn-grande help-play-btn" type="button">Jogar!</button>
+
+    </div>
+
+  </div>
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+
+
+
+  <script src="js/utils/progress.js"></script>
+
+  <script src="js/utils/soundSettings.js"></script>
+
+  <script src="js/utils/speech.js"></script>
+
+  <script src="js/utils/audio.js"></script>
+
+  <script src="js/utils/helpOverlay.js"></script>
+
   <script src="js/utils/volumeControl.js"></script>
 
   <script src="js/utils/languageSelector.js"></script>
 
   <script src="js/utils/sceneHelpers.js"></script>
-  <script src="js/entities/Bee.js"></script>
-
-  <script src="js/scenes/MenuScene.js"></script>
-  <script src="js/scenes/AlphabetScene.js"></script>
-  <script src="js/scenes/NumbersScene.js"></script>
-  <script src="js/scenes/SyllablesScene.js"></script>
-
-  <script src="js/main.js"></script>
-</body>
-</html>
+
+  <script src="js/entities/Bee.js"></script>
+
+  <script src="js/utils/progression.js"></script>
+
+
+
+  <script src="js/scenes/MenuScene.js"></script>
+
+  <script src="js/scenes/AlphabetScene.js"></script>
+
+  <script src="js/scenes/NumbersScene.js"></script>
+
+  <script src="js/scenes/SyllablesScene.js"></script>
+
+  <script src="js/scenes/WordsScene.js"></script>
+
+  <script src="js/scenes/MathScene.js"></script>
+
+  <script src="js/scenes/FormWordsScene.js"></script>
+
+
+
+  <script src="js/main.js"></script>
+
+</body>
+
+</html>

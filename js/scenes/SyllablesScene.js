@@ -360,6 +360,7 @@ class SyllablesScene extends Phaser.Scene {
     const isLast = this.currentFamily === this.families.length - 1;
 
     if (isLast) {
+      Progression.markCompleted('SyllablesScene');
       SceneHelpers.showCelebration(this, () => this.scene.start('MenuScene'));
       return;
     }

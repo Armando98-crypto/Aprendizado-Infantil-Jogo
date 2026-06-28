@@ -45,6 +45,7 @@ class AlphabetScene extends Phaser.Scene {
       },
       () => {
         this.celebrationShown = true;
+        Progression.markCompleted('AlphabetScene');
         SceneHelpers.showCelebration(this, () => this.scene.start('MenuScene'));
       },
       {

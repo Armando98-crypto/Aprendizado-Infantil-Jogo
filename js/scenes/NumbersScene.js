@@ -151,6 +151,7 @@ class NumbersScene extends Phaser.Scene {
     const isLastPage = this.currentPage === this.pages.length - 1;
 
     if (isLastPage) {
+      Progression.markCompleted('NumbersScene');
       SceneHelpers.showCelebration(this, () => this.scene.start('MenuScene'));
       return;
     }
