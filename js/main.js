@@ -21,7 +21,7 @@ const config = {
       debug: false
     }
   },
-  scene: [MenuScene, AlphabetScene, NumbersScene, SyllablesScene, WordsScene, MathScene, FormWordsScene]
+  scene: [MenuScene, AlphabetScene, WordsScene, FrasesScene, NumbersScene, MathScene, MultiplyScene, SyllablesScene, FormWordsScene, ReadScene, AnimalsScene, ColorsScene]
 };
 
 const game = new Phaser.Game(config);

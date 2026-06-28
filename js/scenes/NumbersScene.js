@@ -152,6 +152,8 @@ class NumbersScene extends Phaser.Scene {
 
     if (isLastPage) {
       Progression.markCompleted('NumbersScene');
+      Achievements.checkSceneComplete('NumbersScene');
+      Achievements.checkAllComplete();
       SceneHelpers.showCelebration(this, () => this.scene.start('MenuScene'));
       return;
     }

@@ -55,6 +55,8 @@ class FormWordsScene extends Phaser.Scene {
     if (!wordData) {
       this.celebrationShown = true;
       Progression.markCompleted('FormWordsScene');
+      Achievements.checkSceneComplete('FormWordsScene');
+      Achievements.checkAllComplete();
       SceneHelpers.showCelebration(this, () => this.scene.start('MenuScene'));
       return;
     }

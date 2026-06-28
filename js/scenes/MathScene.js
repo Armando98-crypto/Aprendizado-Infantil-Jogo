@@ -54,6 +54,8 @@ class MathScene extends Phaser.Scene {
     if (!q) {
       this.celebrationShown = true;
       Progression.markCompleted('MathScene');
+      Achievements.checkSceneComplete('MathScene');
+      Achievements.checkAllComplete();
       SceneHelpers.showCelebration(this, () => this.scene.start('MenuScene'));
       return;
     }

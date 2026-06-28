@@ -361,6 +361,8 @@ class SyllablesScene extends Phaser.Scene {
 
     if (isLast) {
       Progression.markCompleted('SyllablesScene');
+      Achievements.checkSceneComplete('SyllablesScene');
+      Achievements.checkAllComplete();
       SceneHelpers.showCelebration(this, () => this.scene.start('MenuScene'));
       return;
     }
