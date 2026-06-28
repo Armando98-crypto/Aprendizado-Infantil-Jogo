@@ -1,9 +1,5 @@
-/**
- * Helpers partilhados entre as cenas de jogo (fundo, botões, celebração).
- */
-
 const SceneHelpers = (function () {
-  const PALETTE = {
+  var PALETTE = {
     skyTop: 0xb8e6ff,
     skyBottom: 0xe8f8ff,
     grass: 0x7ec850,
@@ -19,119 +15,166 @@ const SceneHelpers = (function () {
     star: 0xffd54f
   };
 
-  /** Desenha um fundo gradiente céu + relva. */
   function createBackground(scene) {
-    const { width, height } = scene.scale;
+    var { width, height } = scene.scale;
 
-    const sky = scene.add.graphics();
+    var sky = scene.add.graphics();
     sky.fillGradientStyle(PALETTE.skyTop, PALETTE.skyTop, PALETTE.skyBottom, PALETTE.skyBottom, 1);
     sky.fillRect(0, 0, width, height * 0.78);
 
-    const grass = scene.add.graphics();
+    var grass = scene.add.graphics();
     grass.fillStyle(PALETTE.grass, 1);
     grass.fillRect(0, height * 0.78, width, height * 0.22);
-    grass.fillStyle(PALETTE.grassDark, 0.35);
-    grass.fillEllipse(width * 0.2, height * 0.82, 120, 40);
-    grass.fillEllipse(width * 0.7, height * 0.85, 160, 50);
+
+    grass.fillStyle(PALETTE.grassDark, 0.3);
+    grass.fillEllipse(width * 0.15, height * 0.82, 100, 35);
+    grass.fillEllipse(width * 0.5, height * 0.88, 140, 45);
+    grass.fillEllipse(width * 0.82, height * 0.84, 110, 38);
+
+    addClouds(scene, width, height);
 
     return { sky, grass };
   }
 
-  /**
-   * Botão grande e colorido (mínimo 60px).
-   */
-  function createButton(scene, x, y, width, height, label, color, onClick) {
-    const container = scene.add.container(x, y);
+  function addClouds(scene, w, h) {
+    var g = scene.add.graphics().setDepth(1);
+    g.fillStyle(0xffffff, 0.5);
+    var cloudPositions = [
+      [w * 0.12, h * 0.08, 60, 25],
+      [w * 0.35, h * 0.14, 80, 30],
+      [w * 0.65, h * 0.06, 70, 28],
+      [w * 0.88, h * 0.12, 55, 22],
+      [w * 0.5, h * 0.22, 90, 32]
+    ];
+    cloudPositions.forEach(function (pos) {
+      var cx = pos[0], cy = pos[1], rw = pos[2], rh = pos[3];
+      g.fillEllipse(cx, cy, rw, rh);
+      g.fillEllipse(cx - rw * 0.3, cy + 4, rw * 0.6, rh * 0.7);
+      g.fillEllipse(cx + rw * 0.3, cy + 3, rw * 0.55, rh * 0.65);
+    });
+  }
 
-    const bg = scene.add.rectangle(0, 0, width, height, color, 1);
-    bg.setStrokeStyle(4, 0xffffff, 0.9);
-    bg.setInteractive({ useHandCursor: true });
+  function drawRoundedRect(g, x, y, w, h, r, color, alpha) {
+    g.fillStyle(color, alpha || 1);
+    g.fillRoundedRect(x - w / 2, y - h / 2, w, h, r || 14);
+  }
 
-    const text = scene.add.text(0, 0, label, {
+  function createButton(scene, x, y, w, h, label, color, onClick) {
+    var container = scene.add.container(x, y).setDepth(10);
+
+    var shadowG = scene.add.graphics();
+    shadowG.fillStyle(0x000000, 0.18);
+    shadowG.fillRoundedRect(-w / 2 + 3, -h / 2 + 3, w, h, 14);
+    container.add(shadowG);
+
+    var bgG = scene.add.graphics();
+    bgG.fillStyle(color, 1);
+    bgG.fillRoundedRect(-w / 2, -h / 2, w, h, 14);
+
+    var lighter = Phaser.Display.Color.ValueToColor(color);
+    lighter.lighten(25);
+    bgG.fillStyle(lighter.color, 0.4);
+    bgG.fillRoundedRect(-w / 2, -h / 2, w, h / 2, { tl: 14, tr: 14, bl: 0, br: 0 });
+
+    bgG.lineStyle(3, 0xffffff, 0.7);
+    bgG.strokeRoundedRect(-w / 2, -h / 2, w, h, 14);
+    container.add(bgG);
+
+    var text = scene.add.text(0, 0, label, {
       fontFamily: 'Fredoka, sans-serif',
-      fontSize: Math.min(28, height * 0.35) + 'px',
+      fontSize: Math.min(26, h * 0.38) + 'px',
       color: '#ffffff',
       fontStyle: 'bold',
-      align: 'center'
+      align: 'center',
+      stroke: '#000000',
+      strokeThickness: 1
     }).setOrigin(0.5);
+    container.add(text);
 
-    container.add([bg, text]);
+    var hitZone = scene.add.rectangle(x, y, w + 10, h + 10, 0x000000, 0)
+      .setInteractive({ useHandCursor: true })
+      .setDepth(11);
 
-    bg.on('pointerover', () => bg.setFillStyle(color, 0.85));
-    bg.on('pointerout', () => bg.setFillStyle(color, 1));
-    bg.on('pointerdown', () => {
-      bg.setScale(0.95);
+    hitZone.on('pointerover', function () {
+      scene.tweens.add({ targets: container, scaleX: 1.06, scaleY: 1.06, duration: 120, ease: 'Back.easeOut' });
+    });
+    hitZone.on('pointerout', function () {
+      scene.tweens.add({ targets: container, scaleX: 1, scaleY: 1, duration: 120, ease: 'Sine.easeOut' });
+    });
+    hitZone.on('pointerdown', function () {
+      scene.tweens.add({ targets: container, scaleX: 0.93, scaleY: 0.93, duration: 80, ease: 'Sine.easeIn' });
       if (GameAudio.getContext()) GameAudio.getContext().resume();
     });
-    bg.on('pointerup', () => {
-      bg.setScale(1);
-      onClick();
+    hitZone.on('pointerup', function () {
+      scene.tweens.add({ targets: container, scaleX: 1, scaleY: 1, duration: 120, ease: 'Back.easeOut' });
+      if (onClick) onClick();
     });
 
     return container;
   }
 
-  /** Botão "Voltar" no canto superior esquerdo. */
   function createBackButton(scene, callback) {
-    return createButton(scene, 70, 40, 100, 60, '←', PALETTE.btnBack, callback);
+    return createButton(scene, 70, 38, 90, 52, '← Voltar', PALETTE.btnBack, callback);
   }
 
-  /**
-   * Cria um alvo interativo (letra, número ou sílaba).
-   * Retorna um objeto com container, hitZone e métodos de estado.
-   */
-  function createTarget(scene, x, y, label, size = 72) {
-    const container = scene.add.container(x, y);
-    const radius = size / 2;
+  function createTarget(scene, x, y, label, size) {
+    if (size === undefined) size = 72;
+    var radius = size / 2;
+    var container = scene.add.container(x, y);
 
-    const circle = scene.add.circle(0, 0, radius, PALETTE.targetDefault, 1);
+    var shadowG = scene.add.graphics();
+    shadowG.fillStyle(0x000000, 0.12);
+    shadowG.fillCircle(3, 3, radius + 2);
+    container.add(shadowG);
+
+    var circle = scene.add.circle(0, 0, radius, PALETTE.targetDefault, 1);
     circle.setStrokeStyle(4, PALETTE.targetBorder, 1);
 
-    const text = scene.add.text(0, 0, label, {
+    var text = scene.add.text(0, -1, label, {
       fontFamily: 'Fredoka, sans-serif',
-      fontSize: size * 0.45 + 'px',
+      fontSize: size * 0.42 + 'px',
       color: '#2d5986',
       fontStyle: 'bold'
     }).setOrigin(0.5);
 
-    const check = scene.add.text(radius * 0.55, -radius * 0.55, '✓', {
+    var check = scene.add.text(radius * 0.5, -radius * 0.5, '\u2713', {
       fontFamily: 'Fredoka, sans-serif',
-      fontSize: '22px',
-      color: '#2e7d32'
+      fontSize: '24px',
+      color: '#2e7d32',
+      fontStyle: 'bold'
     }).setOrigin(0.5).setVisible(false);
 
-    container.add([circle, text, check]);
+    container.add([shadowG, circle, text, check]);
 
-    const hitZone = scene.add.circle(x, y, radius + 16, 0x000000, 0);
+    var hitZone = scene.add.circle(x, y, radius + 16, 0x000000, 0);
     scene.physics.add.existing(hitZone);
     hitZone.body.setCircle(radius + 16);
     hitZone.body.setImmovable(true);
     hitZone.body.setAllowGravity(false);
 
-    const target = {
-      container,
-      circle,
-      text,
-      check,
-      hitZone,
-      label,
+    var target = {
+      container: container,
+      circle: circle,
+      text: text,
+      check: check,
+      hitZone: hitZone,
+      label: label,
       completed: false,
 
-      markComplete() {
+      markComplete: function () {
         if (this.completed) return false;
         this.completed = true;
         this._applyDoneVisual();
         return true;
       },
 
-      /** Restaura estado completo a partir do localStorage (sem animação). */
-      restoreComplete() {
+      restoreComplete: function () {
         if (this.completed) return;
         this.completed = true;
         this._applyDoneVisual();
       },
 
-      _applyDoneVisual() {
+      _applyDoneVisual: function () {
         this.circle.setFillStyle(PALETTE.targetDone, 1);
         this.circle.setStrokeStyle(4, 0x2e7d32, 1);
         this.check.setVisible(true);
@@ -141,7 +184,6 @@ const SceneHelpers = (function () {
     return target;
   }
 
-  /** Animação de feedback ao acertar um alvo. */
   function playHitFeedback(scene, target) {
     scene.tweens.add({
       targets: target.container,
@@ -151,7 +193,6 @@ const SceneHelpers = (function () {
       yoyo: true,
       ease: 'Back.easeOut'
     });
-
     scene.tweens.add({
       targets: target.circle,
       alpha: { from: 1, to: 0.6 },
@@ -159,20 +200,19 @@ const SceneHelpers = (function () {
       yoyo: true,
       repeat: 2
     });
-
     spawnStars(scene, target.container.x, target.container.y);
   }
 
-  /** Pequenas estrelas de confete no ponto de colisão. */
-  function spawnStars(scene, x, y, count = 6) {
-    for (let i = 0; i < count; i++) {
-      const star = scene.add.text(x, y, '★', {
+  function spawnStars(scene, x, y, count) {
+    if (count === undefined) count = 6;
+    for (var i = 0; i < count; i++) {
+      var star = scene.add.text(x, y, '\u2605', {
         fontSize: Phaser.Math.Between(16, 28) + 'px',
         color: '#ffd54f'
       }).setOrigin(0.5);
 
-      const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
-      const dist = Phaser.Math.Between(40, 90);
+      var angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
+      var dist = Phaser.Math.Between(40, 90);
 
       scene.tweens.add({
         targets: star,
@@ -182,67 +222,87 @@ const SceneHelpers = (function () {
         scale: 0.2,
         duration: 600,
         ease: 'Power2',
-        onComplete: () => star.destroy()
+        onComplete: function () { star.destroy(); }
       });
     }
   }
 
-  /**
-   * Overlay de celebração quando todos os alvos são completados.
-   */
   function showCelebration(scene, onBackToMenu) {
-    const { width, height } = scene.scale;
+    var { width, height } = scene.scale;
 
-    const overlay = scene.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.45);
-    overlay.setDepth(100);
+    var overlay = scene.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.5);
+    overlay.setDepth(100).setInteractive();
 
-    const panel = scene.add.container(width / 2, height / 2);
-    panel.setDepth(101);
+    var panel = scene.add.container(width / 2, height / 2).setDepth(101);
 
-    const panelBg = scene.add.rectangle(0, 0, 340, 260, 0xffffff, 1);
-    panelBg.setStrokeStyle(6, PALETTE.star, 1);
+    var panelG = scene.add.graphics();
+    panelG.fillStyle(0xffffff, 1);
+    panelG.fillRoundedRect(-175, -140, 350, 280, 24);
+    panelG.lineStyle(5, 0xffd54f, 1);
+    panelG.strokeRoundedRect(-175, -140, 350, 280, 24);
 
-    const emoji = scene.add.text(0, -70, '🎉', { fontSize: '64px' }).setOrigin(0.5);
-    const msg = scene.add.text(0, 10, 'Muito bem!', {
+    var shadowG = scene.add.graphics();
+    shadowG.fillStyle(0x000000, 0.15);
+    shadowG.fillRoundedRect(-172, -137, 350, 280, 24);
+    panel.add([shadowG, panelG]);
+
+    var confetti = ['\uD83C\uDF89', '\u2B50', '\uD83C\uDF1F', '\u2728', '\uD83D\uDCAB'];
+    for (var i = 0; i < 8; i++) {
+      var em = scene.add.text(
+        Phaser.Math.Between(-120, 120),
+        Phaser.Math.Between(-110, -60),
+        confetti[i % confetti.length],
+        { fontSize: Phaser.Math.Between(20, 32) + 'px' }
+      ).setOrigin(0.5);
+      panel.add(em);
+    }
+
+    var msg = scene.add.text(0, 10, 'Muito Bem!', {
       fontFamily: 'Fredoka, sans-serif',
-      fontSize: '36px',
+      fontSize: '34px',
       color: '#2d5986',
-      fontStyle: 'bold'
+      fontStyle: 'bold',
+      stroke: '#ffffff',
+      strokeThickness: 2
     }).setOrigin(0.5);
+    panel.add(msg);
 
-    panel.add([panelBg, emoji, msg]);
+    var sub = scene.add.text(0, 42, 'Completaste esta fase!', {
+      fontFamily: 'Fredoka, sans-serif',
+      fontSize: '16px',
+      color: '#78909c'
+    }).setOrigin(0.5);
+    panel.add(sub);
 
+    panel.setScale(0.3);
     scene.tweens.add({
       targets: panel,
-      scale: { from: 0.5, to: 1 },
-      duration: 500,
+      scale: 1,
+      duration: 550,
       ease: 'Back.easeOut'
     });
 
-    for (let i = 0; i < 12; i++) {
-      spawnStars(scene, Phaser.Math.Between(80, width - 80), Phaser.Math.Between(80, height - 80), 1);
+    for (var i = 0; i < 14; i++) {
+      spawnStars(scene, Phaser.Math.Between(60, width - 60), Phaser.Math.Between(60, height - 60), 1);
     }
 
     GameAudio.playCelebration();
 
-    const btn = createButton(scene, width / 2, height / 2 + 90, 220, 64, 'Voltar ao Menu', PALETTE.btnMenu2, onBackToMenu);
+    var btn = createButton(scene, width / 2, height / 2 + 100, 210, 58, 'Voltar ao Menu', PALETTE.btnMenu2, function () {
+      if (onBackToMenu) onBackToMenu();
+    });
     btn.setDepth(102);
 
-    return { overlay, panel, btn };
+    return { overlay: overlay, panel: panel, btn: btn };
   }
 
-  /**
-   * Configura colisão entre abelhinha e lista de alvos.
-   * Chama onHit quando um alvo novo é completado.
-   * Opcionalmente persiste progresso no localStorage.
-   */
-  function setupBeeCollisions(scene, bee, targets, onHit, onAllComplete, options = {}) {
-    const { progressKey, getProgressId, onProgressUpdate } = options;
+  function setupBeeCollisions(scene, bee, targets, onHit, onAllComplete, options) {
+    if (options === undefined) options = {};
+    var { progressKey, getProgressId, onProgressUpdate } = options;
 
-    targets.forEach((target) => {
-      scene.physics.add.overlap(bee, target.hitZone, () => {
+    targets.forEach(function (target) {
+      scene.physics.add.overlap(bee, target.hitZone, function () {
         if (target.completed) return;
-
         if (target.markComplete()) {
           if (progressKey && getProgressId) {
             Progress.markCompleted(progressKey, getProgressId(target));
@@ -254,7 +314,7 @@ const SceneHelpers = (function () {
           bee.playHappyBounce();
           onHit(target);
 
-          if (targets.every((t) => t.completed)) {
+          if (targets.every(function (t) { return t.completed; })) {
             scene.time.delayedCall(800, onAllComplete);
           }
         }
@@ -262,79 +322,74 @@ const SceneHelpers = (function () {
     });
   }
 
-  /** Marca alvos já completados numa sessão anterior. */
-  function restoreSavedProgress(targets, progressKey, getProgressId = (t) => t.label) {
-    targets.forEach((target) => {
+  function restoreSavedProgress(targets, progressKey, getProgressId) {
+    if (getProgressId === undefined) getProgressId = function (t) { return t.label; };
+    targets.forEach(function (target) {
       if (Progress.isCompleted(progressKey, getProgressId(target))) {
         target.restoreComplete();
       }
     });
   }
 
-  /**
-   * Indicador de progresso no topo da cena (texto + barra).
-   * Reforça visibilidade de evolução para criança/adulto.
-   */
   function createProgressIndicator(scene, progressKey, total) {
-    const { width } = scene.scale;
-    const barWidth = Math.min(260, width - 200);
-    const container = scene.add.container(width / 2, 36);
+    var { width } = scene.scale;
+    var barWidth = Math.min(260, width - 200);
+    var container = scene.add.container(width / 2, 36);
     container.setDepth(20);
 
-    const label = scene.add.text(0, -14, '', {
+    var label = scene.add.text(0, -16, '', {
       fontFamily: 'Fredoka, sans-serif',
-      fontSize: '17px',
+      fontSize: '16px',
       color: '#2d5986',
       fontStyle: 'bold'
     }).setOrigin(0.5);
 
-    const barBg = scene.add.rectangle(0, 10, barWidth, 14, 0xffffff, 0.85);
-    barBg.setStrokeStyle(2, 0x4fc3f7, 0.8);
+    var barBg = scene.add.graphics();
+    barBg.fillStyle(0xffffff, 0.8);
+    barBg.fillRoundedRect(-barWidth / 2, 0, barWidth, 16, 8);
+    barBg.lineStyle(2, 0x4fc3f7, 0.7);
+    barBg.strokeRoundedRect(-barWidth / 2, 0, barWidth, 16, 8);
 
-    const barFill = scene.add.rectangle(-barWidth / 2, 10, 0, 10, 0x66bb6a, 1);
-    barFill.setOrigin(0, 0.5);
+    var barFill = scene.add.graphics();
 
     container.add([barBg, barFill, label]);
 
     function update() {
-      const count = Progress.getCount(progressKey);
-      label.setText(`${count} de ${total}`);
-      const ratio = Math.min(count / total, 1);
-      barFill.width = barWidth * ratio;
+      var count = Progress.getCount(progressKey);
+      label.setText(count + ' de ' + total);
+      var ratio = Math.min(count / total, 1);
+      barFill.clear();
+      barFill.fillStyle(0x66bb6a, 1);
+      barFill.fillRoundedRect(-barWidth / 2, 1, barWidth * ratio, 14, 7);
     }
 
     update();
-    return { container, update };
+    return { container: container, update: update };
   }
 
-  /**
-   * Dica contextual: mão fantasma simula arrastar a abelhinha até ao primeiro alvo.
-   * Mostrada apenas na primeira visita (flag no localStorage).
-   * Cancelável se a criança tocar/arrastar antes do fim.
-   */
   function showDragHint(scene, bee, target, storageKey) {
     if (localStorage.getItem(storageKey) === 'true') {
-      return { cancel() {} };
+      return { cancel: function () {} };
     }
 
     localStorage.setItem(storageKey, 'true');
 
-    let cancelled = false;
-    let handTween = null;
-    let pathTween = null;
+    var cancelled = false;
+    var handTween = null;
+    var pathTween = null;
 
     bee.setInputEnabled(false);
 
-    const startX = bee.x;
-    const startY = bee.y;
-    const endX = target.container.x;
-    const endY = target.container.y;
+    var startX = bee.x;
+    var startY = bee.y;
+    var endX = target.hitZone.x;
+    var endY = target.hitZone.y;
 
-    const hand = scene.add.text(startX + 30, startY + 20, '👆', {
+    var hand = scene.add.text(startX + 30, startY + 20, '\uD83D\uDC46', {
       fontSize: '44px'
     }).setOrigin(0.5).setAlpha(0.85).setDepth(50);
 
-    const trail = scene.add.graphics().setDepth(49);
+    var trail = scene.add.graphics().setDepth(49);
     trail.lineStyle(3, 0xffffff, 0.45);
     trail.strokeCircle(startX, startY, 8);
     trail.lineBetween(startX, startY, endX, endY);
@@ -376,7 +431,7 @@ const SceneHelpers = (function () {
       yoyo: true,
       repeat: 1,
       ease: 'Sine.easeInOut',
-      onUpdate: () => {
+      onUpdate: function () {
         if (bee.body) bee.body.updateFromGameObject();
       }
     });
@@ -384,28 +439,27 @@ const SceneHelpers = (function () {
     return { cancel: finish };
   }
 
-  /** Posições em grelha para distribuir alvos na tela. */
-  function gridPositions(scene, count, options = {}) {
-    const {
-      startY = 110,
-      marginX = 60,
-      marginBottom = 100,
-      cols = null
-    } = options;
+  function gridPositions(scene, count, options) {
+    if (options === undefined) options = {};
+    var { startY, marginX, marginBottom, cols } = options;
+    if (startY === undefined) startY = 110;
+    if (marginX === undefined) marginX = 60;
+    if (marginBottom === undefined) marginBottom = 100;
+    if (cols === undefined) cols = null;
 
-    const { width, height } = scene.scale;
-    const columnCount = cols || Math.ceil(Math.sqrt(count * (width / height)));
-    const rows = Math.ceil(count / columnCount);
+    var { width, height } = scene.scale;
+    var columnCount = cols || Math.ceil(Math.sqrt(count * (width / height)));
+    var rows = Math.ceil(count / columnCount);
 
-    const usableW = width - marginX * 2;
-    const usableH = height - startY - marginBottom;
-    const cellW = usableW / columnCount;
-    const cellH = usableH / rows;
+    var usableW = width - marginX * 2;
+    var usableH = height - startY - marginBottom;
+    var cellW = usableW / columnCount;
+    var cellH = usableH / rows;
 
-    const positions = [];
-    for (let i = 0; i < count; i++) {
-      const col = i % columnCount;
-      const row = Math.floor(i / columnCount);
+    var positions = [];
+    for (var i = 0; i < count; i++) {
+      var col = i % columnCount;
+      var row = Math.floor(i / columnCount);
       positions.push({
         x: marginX + cellW * col + cellW / 2,
         y: startY + cellH * row + cellH / 2
@@ -415,18 +469,18 @@ const SceneHelpers = (function () {
   }
 
   return {
-    PALETTE,
-    createBackground,
-    createButton,
-    createBackButton,
-    createTarget,
-    playHitFeedback,
-    spawnStars,
-    showCelebration,
-    setupBeeCollisions,
-    restoreSavedProgress,
-    createProgressIndicator,
-    showDragHint,
-    gridPositions
+    PALETTE: PALETTE,
+    createBackground: createBackground,
+    createButton: createButton,
+    createBackButton: createBackButton,
+    createTarget: createTarget,
+    playHitFeedback: playHitFeedback,
+    spawnStars: spawnStars,
+    showCelebration: showCelebration,
+    setupBeeCollisions: setupBeeCollisions,
+    restoreSavedProgress: restoreSavedProgress,
+    createProgressIndicator: createProgressIndicator,
+    showDragHint: showDragHint,
+    gridPositions: gridPositions
   };
 })();
