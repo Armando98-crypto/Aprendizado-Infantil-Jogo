@@ -28,6 +28,7 @@ const game = new Phaser.Game(config);
 
 HelpOverlay.init();
 VolumeControl.init();
+LanguageSelector.init();
 
 document.addEventListener('pointerdown', () => {
   if (GameAudio.getContext()) GameAudio.getContext().resume();

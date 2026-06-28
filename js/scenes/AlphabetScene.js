@@ -19,13 +19,7 @@ class AlphabetScene extends Phaser.Scene {
     const progressKey = Progress.KEYS.alphabet;
     const totalLetters = 26;
 
-    this.phonetics = {
-      A: 'á', B: 'bê', C: 'cê', D: 'dé', E: 'é', F: 'efe',
-      G: 'gê', H: 'agá', I: 'i', J: 'jota', K: 'cá', L: 'ele',
-      M: 'eme', N: 'ene', O: 'ó', P: 'pê', Q: 'quê', R: 'erre',
-      S: 'esse', T: 'té', U: 'u', V: 'vê', W: 'dáblio', X: 'xis',
-      Y: 'ípsilon', Z: 'zê'
-    };
+    this.phonetics = Speech.getAlphabetPhonetics();
 
     this.progressUI = SceneHelpers.createProgressIndicator(this, progressKey, totalLetters);
 
