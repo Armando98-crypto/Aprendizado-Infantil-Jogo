@@ -98,7 +98,7 @@ class ColorsScene extends Phaser.Scene {
       this.targets.push(target);
     }
 
-    this.collider = this.physics.add.overlap(this.bee.sprite, this.targets, function (bee, t) {
+    this.collider = this.physics.add.overlap(this.bee, this.targets, function (bee, t) {
       if (self.celebrationShown || t.found) return;
       self.onColorOverlap(t);
     });

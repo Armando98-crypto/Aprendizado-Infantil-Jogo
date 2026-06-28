@@ -117,7 +117,7 @@ class WordsScene extends Phaser.Scene {
     }
 
     var self = this;
-    this.collider = this.physics.add.overlap(this.bee.sprite, this.letterTargets, function (bee, letter) {
+    this.collider = this.physics.add.overlap(this.bee, this.letterTargets, function (bee, letter) {
       if (self.celebrationShown || letter.found) return;
       self.onLetterOverlap(letter);
     });

@@ -169,10 +169,10 @@ class SyllablesScene extends Phaser.Scene {
         name: 'Ç',
         syllables: [
           { syl: 'ça', word: 'caça' },
-          { syl: 'ce', word: 'cereja' },
-          { syl: 'ci', word: 'ciranda' },
-          { syl: 'co', word: 'coçar' },
-          { syl: 'cu', word: 'cuia' }
+          { syl: 'ço', word: 'moço' },
+          { syl: 'çu', word: 'açúcar' },
+          { syl: 'çã', word: 'maçã' },
+          { syl: 'ção', word: 'coração' }
         ]
       },
       {
@@ -203,16 +203,6 @@ class SyllablesScene extends Phaser.Scene {
           { syl: 'nhi', word: 'anhinha' },
           { syl: 'nho', word: 'banho' },
           { syl: 'nhu', word: 'nhoque' }
-        ]
-      },
-      {
-        name: 'QU',
-        syllables: [
-          { syl: 'qua', word: 'quatro' },
-          { syl: 'que', word: 'queijo' },
-          { syl: 'qui', word: 'quilo' },
-          { syl: 'quô', word: 'quórum' },
-          { syl: 'quo', word: 'quota' }
         ]
       }
     ];

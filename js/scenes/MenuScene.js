@@ -22,7 +22,7 @@ class MenuScene extends Phaser.Scene {
     statBg.fillRoundedRect(cx - 130, titleY + 42, 260, 20, 10);
 
     this.add.text(cx, titleY + 52, stats.completed + ' de ' + stats.total + ' fases  \u2022  ' + overall.accuracy + '% acertos', {
-      fontFamily: 'Fredoka, sans-serif', fontSize: '11px', color: '#5c6bc0', fontStyle: 'bold'
+      fontFamily: 'Fredoka, sans-serif', fontSize: '14px', color: '#5c6bc0', fontStyle: 'bold'
     }).setOrigin(0.5);
 
     var modeY = titleY + 70;

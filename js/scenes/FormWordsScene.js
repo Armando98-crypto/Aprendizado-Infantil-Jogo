@@ -119,7 +119,7 @@ class FormWordsScene extends Phaser.Scene {
     }
 
     var self = this;
-    this.collider = this.physics.add.overlap(this.bee.sprite, this.syllableTargets, function (bee, syl) {
+    this.collider = this.physics.add.overlap(this.bee, this.syllableTargets, function (bee, syl) {
       if (self.celebrationShown || syl.found) return;
       self.onSyllableOverlap(syl);
     });

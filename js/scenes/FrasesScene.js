@@ -25,8 +25,8 @@ class FrasesScene extends Phaser.Scene {
     this.targets = [];
     this.collider = null;
 
-    SceneHelpers.createBackButton(this, function () { self.scene.start('MenuScene'); });
     var self = this;
+    SceneHelpers.createBackButton(this, function () { self.scene.start('MenuScene'); });
     this.buildPhrase();
   }
 
@@ -51,7 +51,9 @@ class FrasesScene extends Phaser.Scene {
     var { width, height } = this.scale;
     var cx = width / 2;
 
-    this.phraseDisplay.setText(phrase.hint ? phrase.hint + ' ' : '' + '_ '.repeat(phrase.words.length).trim());
+    var displayText = phrase.hint ? phrase.hint + ' ' : '';
+    displayText += '_ '.repeat(phrase.words.length).trim();
+    this.phraseDisplay.setText(displayText);
     this.currentWords = phrase.words;
 
     Speech.speak(phrase.full);
@@ -92,7 +94,7 @@ class FrasesScene extends Phaser.Scene {
       this.targets.push(target);
     }
 
-    this.collider = this.physics.add.overlap(this.bee.sprite, this.targets, function (bee, t) {
+    this.collider = this.physics.add.overlap(this.bee, this.targets, function (bee, t) {
       if (self.celebrationShown || t.found) return;
       self.onWordOverlap(t);
     });

@@ -97,7 +97,7 @@ class MultiplyScene extends Phaser.Scene {
     Speech.speakSequence([Speech.numberToWords(q.a), times, Speech.numberToWords(q.b)]);
 
     var self = this;
-    this.collider = this.physics.add.overlap(this.bee.sprite, this.targets, function (bee, opt) {
+    this.collider = this.physics.add.overlap(this.bee, this.targets, function (bee, opt) {
       if (self.celebrationShown || opt.found) return;
       self.onOptionOverlap(opt);
     });

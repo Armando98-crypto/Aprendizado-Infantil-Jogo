@@ -120,7 +120,7 @@ class MathScene extends Phaser.Scene {
     }
 
     var self = this;
-    this.collider = this.physics.add.overlap(this.bee.sprite, this.optionTargets, function (bee, opt) {
+    this.collider = this.physics.add.overlap(this.bee, this.optionTargets, function (bee, opt) {
       if (self.celebrationShown || opt.found) return;
       self.onOptionOverlap(opt);
     });

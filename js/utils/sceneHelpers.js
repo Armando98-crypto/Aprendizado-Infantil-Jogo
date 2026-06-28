@@ -91,21 +91,21 @@ const SceneHelpers = (function () {
     }).setOrigin(0.5);
     container.add(text);
 
-    var hitZone = scene.add.rectangle(x, y, w + 10, h + 10, 0x000000, 0)
-      .setInteractive({ useHandCursor: true })
-      .setDepth(11);
+    container.setSize(w + 10, h + 10);
+    container.setInteractive(new Phaser.Geom.Rectangle(-(w + 10) / 2, -(h + 10) / 2, w + 10, h + 10), Phaser.Geom.Rectangle.Contains);
+    if (scene.input) scene.input.setDraggable(container, false);
 
-    hitZone.on('pointerover', function () {
+    container.on('pointerover', function () {
       scene.tweens.add({ targets: container, scaleX: 1.06, scaleY: 1.06, duration: 120, ease: 'Back.easeOut' });
     });
-    hitZone.on('pointerout', function () {
+    container.on('pointerout', function () {
       scene.tweens.add({ targets: container, scaleX: 1, scaleY: 1, duration: 120, ease: 'Sine.easeOut' });
     });
-    hitZone.on('pointerdown', function () {
+    container.on('pointerdown', function () {
       scene.tweens.add({ targets: container, scaleX: 0.93, scaleY: 0.93, duration: 80, ease: 'Sine.easeIn' });
       if (GameAudio.getContext()) GameAudio.getContext().resume();
     });
-    hitZone.on('pointerup', function () {
+    container.on('pointerup', function () {
       scene.tweens.add({ targets: container, scaleX: 1, scaleY: 1, duration: 120, ease: 'Back.easeOut' });
       if (onClick) onClick();
     });
@@ -296,12 +296,15 @@ const SceneHelpers = (function () {
     return { overlay: overlay, panel: panel, btn: btn };
   }
 
+  var _allColliders = [];
+
   function setupBeeCollisions(scene, bee, targets, onHit, onAllComplete, options) {
+    destroyColliders();
     if (options === undefined) options = {};
     var { progressKey, getProgressId, onProgressUpdate } = options;
 
     targets.forEach(function (target) {
-      scene.physics.add.overlap(bee, target.hitZone, function () {
+      var collider = scene.physics.add.overlap(bee, target.hitZone, function () {
         if (target.completed) return;
         if (target.markComplete()) {
           if (progressKey && getProgressId) {
@@ -319,7 +322,13 @@ const SceneHelpers = (function () {
           }
         }
       });
+      _allColliders.push(collider);
     });
+  }
+
+  function destroyColliders() {
+    _allColliders.forEach(function (c) { if (c && c.destroy) c.destroy(); });
+    _allColliders = [];
   }
 
   function restoreSavedProgress(targets, progressKey, getProgressId) {
@@ -478,6 +487,7 @@ const SceneHelpers = (function () {
     spawnStars: spawnStars,
     showCelebration: showCelebration,
     setupBeeCollisions: setupBeeCollisions,
+    destroyColliders: destroyColliders,
     restoreSavedProgress: restoreSavedProgress,
     createProgressIndicator: createProgressIndicator,
     showDragHint: showDragHint,
