@@ -93,7 +93,7 @@ body {
   position: absolute;
   top: 8px;
   right: 8px;
-  z-index: 30;
+  z-index: 1000;
   width: 56px;
   height: 56px;
   min-width: 56px;
@@ -104,6 +104,7 @@ body {
   box-shadow: 0 3px 0 #2d8fd4, var(--sombra-suave);
   font-size: 1.5rem;
   cursor: pointer;
+  pointer-events: auto;
   touch-action: manipulation;
   transition: transform 0.1s ease;
 }
@@ -116,7 +117,7 @@ body {
   position: absolute;
   top: 8px;
   left: 8px;
-  z-index: 30;
+  z-index: 1000;
   width: auto;
   min-width: 56px;
   height: 56px;
@@ -131,8 +132,11 @@ body {
   font-weight: 600;
   color: #fff;
   cursor: pointer;
+  pointer-events: auto;
   touch-action: manipulation;
   transition: transform 0.1s ease;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .lang-btn:active {
