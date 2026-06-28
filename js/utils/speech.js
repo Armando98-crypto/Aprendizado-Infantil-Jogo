@@ -10,6 +10,7 @@ const Speech = (function () {
   const PITCH = 1.45;
 
   let cachedVoice = null;
+  let _primed = false;
 
   function loadVoices() {
     if (typeof speechSynthesis === 'undefined') return;
@@ -22,13 +23,21 @@ const Speech = (function () {
     loadVoices();
   }
 
-  /** Indica se o nome da voz sugere voz feminina (mais acolhedora para crianças). */
+  function prime() {
+    if (_primed || typeof speechSynthesis === 'undefined') return;
+    _primed = true;
+    try {
+      const u = new SpeechSynthesisUtterance('');
+      u.volume = 0;
+      speechSynthesis.speak(u);
+    } catch (_) { /* ignore */ }
+  }
+
   function isLikelyFemaleVoice(voice) {
     const hint = `${voice.name} ${voice.voiceURI}`.toLowerCase();
     return /female|feminina|woman|maria|luciana|francisca|vitória|vitoria|fernanda|daniela|heloisa|heloísa|camila|google português do brasil/i.test(hint);
   }
 
-  /** Filtra vozes estritamente pt-BR (aceita variantes de código). */
   function getPtBRVoices() {
     if (typeof speechSynthesis === 'undefined') return [];
     return speechSynthesis.getVoices().filter((v) => {
@@ -37,10 +46,6 @@ const Speech = (function () {
     });
   }
 
-  /**
-   * Escolhe voz pt-BR; preferência por voz feminina.
-   * Não recorre a vozes de outros idiomas.
-   */
   function pickVoice(lang = PREFERRED_LANG) {
     if (cachedVoice) return cachedVoice;
 
@@ -74,9 +79,6 @@ const Speech = (function () {
     if (voice) utterance.voice = voice;
   }
 
-  /**
-   * Pronuncia um texto. Cancela fala anterior para evitar sobreposição.
-   */
   function speak(text, lang = PREFERRED_LANG) {
     if (SoundSettings.isMuted()) return;
 
@@ -89,12 +91,12 @@ const Speech = (function () {
 
     const utterance = new SpeechSynthesisUtterance(text);
     applyUtteranceSettings(utterance, lang);
-    speechSynthesis.speak(utterance);
+
+    setTimeout(() => {
+      speechSynthesis.speak(utterance);
+    }, 50);
   }
 
-  /**
-   * Pronuncia vários textos em sequência (com pequena pausa entre eles).
-   */
   function speakSequence(texts, lang = PREFERRED_LANG) {
     if (!texts.length || SoundSettings.isMuted()) return;
 
@@ -103,32 +105,31 @@ const Speech = (function () {
       return;
     }
 
-    speechSynthesis.cancel();
+    setTimeout(() => {
+      speechSynthesis.cancel();
 
-    let index = 0;
+      let index = 0;
 
-    function speakNext() {
-      if (index >= texts.length || SoundSettings.isMuted()) return;
+      function speakNext() {
+        if (index >= texts.length || SoundSettings.isMuted()) return;
 
-      const utterance = new SpeechSynthesisUtterance(texts[index]);
-      applyUtteranceSettings(utterance, lang);
+        const utterance = new SpeechSynthesisUtterance(texts[index]);
+        applyUtteranceSettings(utterance, lang);
 
-      utterance.onend = () => {
-        index += 1;
-        if (index < texts.length) {
-          setTimeout(speakNext, 300);
-        }
-      };
+        utterance.onend = () => {
+          index += 1;
+          if (index < texts.length) {
+            setTimeout(speakNext, 300);
+          }
+        };
 
-      speechSynthesis.speak(utterance);
-    }
+        speechSynthesis.speak(utterance);
+      }
 
-    speakNext();
+      speakNext();
+    }, 50);
   }
 
-  /**
-   * Converte um número (0–100) para palavras em português.
-   */
   function numberToWords(n) {
     const unidades = [
       'zero', 'um', 'dois', 'três', 'quatro', 'cinco',
@@ -157,6 +158,7 @@ const Speech = (function () {
     speakSequence,
     numberToWords,
     loadVoices,
-    pickVoice
+    pickVoice,
+    prime
   };
 })();

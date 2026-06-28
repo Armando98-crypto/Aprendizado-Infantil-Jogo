@@ -32,4 +32,5 @@ VolumeControl.init();
 document.addEventListener('pointerdown', () => {
   if (GameAudio.getContext()) GameAudio.getContext().resume();
   Speech.loadVoices();
+  Speech.prime();
 }, { once: true });
