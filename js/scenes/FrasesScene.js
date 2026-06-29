@@ -62,7 +62,7 @@ class FrasesScene extends Phaser.Scene {
     var cols = Math.min(phrase.words.length, 4);
     var spacing = Math.min(130, (width - 80) / cols);
     var startX = cx - (spacing * (cols - 1)) / 2;
-    var yStart = 140;
+    var yStart = 160;
 
     for (var i = 0; i < phrase.words.length; i++) {
       var wx, wy;
@@ -71,7 +71,7 @@ class FrasesScene extends Phaser.Scene {
         wy = yStart + Phaser.Math.Between(-20, 20);
       } else {
         wx = startX + (i - cols) * spacing;
-        wy = yStart + 80 + Phaser.Math.Between(-10, 10);
+        wy = yStart + 90 + Phaser.Math.Between(-10, 10);
       }
 
       var target = this.add.text(wx, wy, phrase.words[i], {

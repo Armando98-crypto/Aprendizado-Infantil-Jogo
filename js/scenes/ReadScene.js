@@ -70,7 +70,7 @@ class ReadScene extends Phaser.Scene {
     var cols = Math.min(this.missingWords.length, 4);
     var spacing = Math.min(140, (width - 80) / cols);
     var startX = cx - (spacing * (cols - 1)) / 2;
-    var yBase = 140;
+    var yBase = 170;
 
     for (var i = 0; i < this.missingWords.length; i++) {
       var wx = startX + i * spacing;

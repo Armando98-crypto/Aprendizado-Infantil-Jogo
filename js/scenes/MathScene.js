@@ -91,7 +91,7 @@ class MathScene extends Phaser.Scene {
     for (var i = 0; i < options.length; i++) {
       var angle = angleStep * i - Math.PI / 2;
       var ox = cx + Math.cos(angle) * radius;
-      var oy = 150 + Math.sin(angle) * radius + height * 0.08;
+      var oy = 190 + Math.sin(angle) * radius + height * 0.08;
 
       var target = this.add.text(ox, oy, String(options[i]), {
         fontFamily: 'Fredoka, sans-serif',

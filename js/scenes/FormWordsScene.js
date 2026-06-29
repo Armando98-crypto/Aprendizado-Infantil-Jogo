@@ -82,10 +82,10 @@ class FormWordsScene extends Phaser.Scene {
 
       if (i < this.currentSyllables.length / 2) {
         lx = cx - 80 + i * 100;
-        ly = 150;
+        ly = 170;
       } else {
         lx = cx - 80 + (i - Math.ceil(this.currentSyllables.length / 2)) * 100;
-        ly = 230;
+        ly = 260;
       }
 
       var sylText = sy.toUpperCase();

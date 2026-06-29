@@ -81,7 +81,7 @@ class MenuScene extends Phaser.Scene {
     var endX = width - 110;
     var stepX = (endX - startX) / (cols - 1);
     var startY = 108;
-    var stepY = 80;
+    var stepY = 100;
 
     var positions = [];
     for (var i = 0; i < nodes.length; i++) {
