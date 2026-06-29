@@ -15,13 +15,13 @@ class MenuScene extends Phaser.Scene {
     var cx = width / 2;
 
     this.add.text(cx, 12, '\uD83D\uDC1D', { fontSize: '28px' }).setOrigin(0.5);
-    this.add.text(cx, 34, 'Mapa da Abelhinha', {
+    this.add.text(cx, 36, 'Mapa da Abelhinha', {
       fontFamily: 'Fredoka, sans-serif', fontSize: '20px', color: '#2d5986', fontStyle: 'bold'
     }).setOrigin(0.5);
 
     var stats = Progression.getStats();
     var overall = GameStats.getOverall();
-    this.add.text(cx, 54, stats.completed + '/' + stats.total + ' fases  \u2022  ' + overall.accuracy + '% acertos', {
+    this.add.text(cx, 56, stats.completed + '/' + stats.total + ' fases  \u2022  ' + overall.accuracy + '% acertos', {
       fontFamily: 'Fredoka, sans-serif', fontSize: '13px', color: '#5c6bc0', fontStyle: 'bold'
     }).setOrigin(0.5);
 
@@ -80,7 +80,7 @@ class MenuScene extends Phaser.Scene {
     var startX = 110;
     var endX = width - 110;
     var stepX = (endX - startX) / (cols - 1);
-    var startY = 84;
+    var startY = 108;
     var stepY = 80;
 
     var positions = [];

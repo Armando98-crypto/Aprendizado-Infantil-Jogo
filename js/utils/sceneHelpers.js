@@ -91,21 +91,22 @@ const SceneHelpers = (function () {
     }).setOrigin(0.5);
     container.add(text);
 
-    container.setSize(w + 10, h + 10);
-    container.setInteractive(new Phaser.Geom.Rectangle(-(w + 10) / 2, -(h + 10) / 2, w + 10, h + 10), Phaser.Geom.Rectangle.Contains);
-    if (scene.input) scene.input.setDraggable(container, false);
+    var hitZone = scene.add.zone(0, 0, w + 10, h + 10)
+      .setInteractive({ useHandCursor: true })
+      .setDepth(11);
+    container.add(hitZone);
 
-    container.on('pointerover', function () {
+    hitZone.on('pointerover', function () {
       scene.tweens.add({ targets: container, scaleX: 1.06, scaleY: 1.06, duration: 120, ease: 'Back.easeOut' });
     });
-    container.on('pointerout', function () {
+    hitZone.on('pointerout', function () {
       scene.tweens.add({ targets: container, scaleX: 1, scaleY: 1, duration: 120, ease: 'Sine.easeOut' });
     });
-    container.on('pointerdown', function () {
+    hitZone.on('pointerdown', function () {
       scene.tweens.add({ targets: container, scaleX: 0.93, scaleY: 0.93, duration: 80, ease: 'Sine.easeIn' });
       if (GameAudio.getContext()) GameAudio.getContext().resume();
     });
-    container.on('pointerup', function () {
+    hitZone.on('pointerup', function () {
       scene.tweens.add({ targets: container, scaleX: 1, scaleY: 1, duration: 120, ease: 'Back.easeOut' });
       if (onClick) onClick();
     });
