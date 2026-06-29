@@ -16,8 +16,8 @@ class ColorsScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     this.colorDisplay = this.add.text(width / 2, 55, '', {
-      fontFamily: 'Fredoka, sans-serif', fontSize: '32px', color: '#ffffff', fontStyle: 'bold',
-      backgroundColor: '#000000', padding: { x: 20, y: 10 }
+      fontFamily: 'Fredoka, sans-serif', fontSize: '34px', color: '#37474f', fontStyle: 'bold',
+      stroke: '#ffffff', strokeThickness: 2
     }).setOrigin(0.5);
 
     this.bee = new Bee(this, 60, height / 2);
@@ -49,7 +49,6 @@ class ColorsScene extends Phaser.Scene {
     var cx = width / 2;
 
     this.colorDisplay.setText(color.name.toUpperCase());
-    this.colorDisplay.setStyle({ backgroundColor: color.hex });
     this.currentColorName = color.name;
 
     Speech.speak(color.name);
@@ -61,32 +60,30 @@ class ColorsScene extends Phaser.Scene {
         wrong.push(allColors[i].name);
       }
     }
-    while (wrong.length < 3) { wrong.push('???'); }
 
     var options = [color.name].concat(wrong);
     Phaser.Utils.Array.Shuffle(options);
 
-    var radius = Math.min(width * 0.32, 140);
+    var arrRadius = Math.min(width * 0.32, 140);
     var angleStep = (Math.PI * 2) / options.length;
+    var cRadius = 40;
 
     for (var i = 0; i < options.length; i++) {
       var angle = angleStep * i - Math.PI / 2;
-      var ox = cx + Math.cos(angle) * radius;
-      var oy = 190 + Math.sin(angle) * radius + height * 0.08;
+      var ox = cx + Math.cos(angle) * arrRadius;
+      var oy = 220 + Math.sin(angle) * arrRadius + height * 0.08;
 
-      var bgColor = '#78909c';
+      var hexStr = '#78909c';
       for (var j = 0; j < allColors.length; j++) {
-        if (allColors[j].name === options[i]) { bgColor = allColors[j].hex; break; }
+        if (allColors[j].name === options[i]) { hexStr = allColors[j].hex; break; }
       }
+      var fillColor = Phaser.Display.Color.HexStringToColor(hexStr).color;
 
-      var target = this.add.text(ox, oy, options[i].toUpperCase(), {
-        fontFamily: 'Fredoka, sans-serif', fontSize: '20px', color: '#ffffff', fontStyle: 'bold',
-        backgroundColor: bgColor, padding: { x: 14, y: 10 }
-      }).setOrigin(0.5);
+      var target = this.add.circle(ox, oy, cRadius, fillColor);
+      target.setStrokeStyle(4, 0xffffff, 0.85);
 
       this.physics.add.existing(target);
-      target.body.setCircle(24);
-      target.body.setOffset(0, -4);
+      target.body.setCircle(cRadius);
       target.val = options[i];
       target.found = false;
 
@@ -117,15 +114,15 @@ class ColorsScene extends Phaser.Scene {
     if (target.val === this.currentColorName) {
       GameStats.recordHit('ColorsScene');
       GameAudio.playPop();
-      target.setStyle({ backgroundColor: '#66bb6a', color: '#ffffff' });
+      target.setFillStyle(0x66bb6a);
       this.tweens.add({ targets: target, scale: 1.5, duration: 200, yoyo: true });
-      this.colorDisplay.setText('✓ ' + this.currentColorName.toUpperCase());
+      this.colorDisplay.setText('\u2713 ' + this.currentColorName.toUpperCase());
       Speech.speak(this.currentColorName);
       setTimeout(function (self) { self.colorIndex += 1; self.buildColor(); }, 1000, this);
     } else {
       GameStats.recordMistake('ColorsScene');
       GameAudio.playHit();
-      target.setStyle({ backgroundColor: '#ef5350', color: '#ffffff' });
+      target.setFillStyle(0xef5350);
       this.tweens.add({ targets: target, x: target.x + 8, duration: 60, yoyo: true, repeat: 3 });
       setTimeout(function (self, t) {
         var bgColor = '#78909c';
@@ -133,7 +130,7 @@ class ColorsScene extends Phaser.Scene {
         for (var j = 0; j < allColors.length; j++) {
           if (allColors[j].name === t.val) { bgColor = allColors[j].hex; break; }
         }
-        t.setStyle({ backgroundColor: bgColor, color: '#ffffff' });
+        t.setFillStyle(Phaser.Display.Color.HexStringToColor(bgColor).color);
         t.found = false;
       }, 500, this, target);
     }
